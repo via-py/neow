@@ -5,7 +5,7 @@
 @Version        :  
 ------------------------------------
 @File           :  MongoHelper.py
-@Description    :
+@Description    :  mongodb操作集合
 @CreateTime     :  2019/8/18 17:02
 ------------------------------------
 @ModifyTime     :  
