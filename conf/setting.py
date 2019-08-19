@@ -5,20 +5,25 @@
 @Version        :
 ------------------------------------
 @File           :  setting.py
-@Description    :  配置文件
+@Description    :  全局配置文件
 @CreateTime     :  2019/8/18 15:44
 ------------------------------------
 @ModifyTime     :  
 @ModifyContent  :  
 """
+import sys
 from os import getenv
 from logging import getLogger
+from manager import getProxy
 
 log = getLogger(__name__)
+
+PY3 = sys.version_info >= (3,)
 
 DB_TYPE = getenv('db_type', 'REDIS').upper()
 DB_HOST = getenv('db_host', '127.0.0.1')
 DB_PORT = getenv('db_port', '6379')
+DB_NAME = getenv('db_name', 'proxy_pool')
 DB_USERNAME = getenv('db_username', '')
 DB_PASSWORD = getenv('db_password', '')
 
@@ -28,8 +33,8 @@ DATABASE = {
         "TYPE": DB_TYPE,
         "HOST": DB_HOST,
         "PORT": DB_PORT,
-        "NAME": 'proxy_pool',
-        "USERNAME": DB_USERNAME,
+        # "NAME": DB_NAME,
+        # "USERNAME": DB_USERNAME,
         "PASSWORD": DB_PASSWORD
     }
 }
@@ -42,7 +47,7 @@ SERVER_API = {
 
 # register the proxy getter function
 PROXY_GETTER = [
-
+    "freeProxy01"
 ]
 
 
@@ -84,3 +89,20 @@ USER_AGENTS = [
     "Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10"
 ]
 
+
+class ConfigError(BaseException): pass
+
+
+def checkConfig():
+    if DB_TYPE not in ['REDIS', 'MONGODB']:
+        raise ConfigError("db_type don't support: %s, must REDIS/MONGODB." % DB_TYPE)
+
+    if not DB_PORT.isdigit():
+        raise ConfigError("db_port must be digit, not %s" % DB_PORT)
+
+    illegal_getter = list(filter(lambda key: not hasattr(getProxy.GetProxy, key), PROXY_GETTER))
+    if len(illegal_getter) > 0:
+        raise ConfigError("ProxyGetter: %s doesn't exists" % "/".join(illegal_getter))
+
+
+checkConfig()
