@@ -5,7 +5,7 @@
 @Version        :  
 ------------------------------------
 @File           :  DataStore.py
-@Description    :
+@Description    :  proxy存储接口类
 @CreateTime     :  2019/8/18 16:46
 ------------------------------------
 @ModifyTime     :  
