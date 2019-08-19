@@ -30,8 +30,19 @@ DATABASE = {
         "PORT": DB_PORT,
         "NAME": 'proxy_pool',
         "USERNAME": DB_USERNAME,
-        "PASSWORD": DB_PASSWORD
-    }
+        "PASSWORD": DB_PASSWORD,
+        "TABLE": '',
+    },
+    "mongo": {
+        "ENGINE": '',
+        "TYPE": 'MONGODB',
+        "HOST": DB_HOST,
+        "PORT": '27017',
+        "NAME": 'proxy_pool',
+        "USERNAME": '',
+        "PASSWORD": '',
+        "TABLE": 'proxy',
+    },
 }
 
 

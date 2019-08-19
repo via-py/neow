@@ -41,7 +41,7 @@ class ConfigGetter(object):
 
     @LazyProperty
     def db_password(self):
-        return DATABASE.get('default', {}).get('PASSWORRD', '')
+        return DATABASE.get('default', {}).get('PASSWORD', '')
 
     @LazyProperty
     def proxy_getter_function(self):
@@ -54,6 +54,10 @@ class ConfigGetter(object):
     @LazyProperty
     def host_port(self):
         return SERVER_API.get('PORT', 5001)
+
+    @LazyProperty
+    def table(self):
+        return SERVER_API.get('TABLE', 'proxy')
 
 
 config = ConfigGetter()
@@ -69,6 +73,7 @@ if __name__ == '__main__':
         config.host_ip,
         config.host_port,
         config.proxy_getter_function,
+        config.table,
     )
     print('{0[0]},{0[1]},{0[2]},{0[3]},'
-          '{0[4]},{0[5]},{0[6]},{0[7]},{0[8]},'.format(info))
+          '{0[4]},{0[5]},{0[6]},{0[7]},{0[8]},{0[9]},'.format(info))

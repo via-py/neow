@@ -36,7 +36,7 @@ class DataStore(object):
         __type = None
         if "REDIS" == config.db_type:
             __type = 'RedisHelper'
-        elif 'MONGODBB' == config.db_type:
+        elif 'MONGODB' == config.db_type:
             __type = 'MongoHelper'
         else:
             pass
