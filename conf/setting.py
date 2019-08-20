@@ -20,6 +20,7 @@ log = getLogger(__name__)
 
 PY3 = sys.version_info >= (3,)
 
+DB = 'mongo'
 DB_TYPE = getenv('db_type', 'REDIS').upper()
 DB_HOST = getenv('db_host', '127.0.0.1')
 DB_PORT = getenv('db_port', '6379')
@@ -36,20 +37,22 @@ DATABASE = {
         # "NAME": DB_NAME,
         # "USERNAME": DB_USERNAME,
         "PASSWORD": DB_PASSWORD,
-        "TABLE": '',
+        "TABLE": 'raw_proxy',
     },
     "mongo": {
         "ENGINE": '',
         "TYPE": 'MONGODB',
         "HOST": DB_HOST,
-        "PORT": '27017',
+        "PORT": 27017,
         "NAME": 'proxy_pool',
         "USERNAME": '',
         "PASSWORD": '',
-        "TABLE": 'proxy',
+        "TABLE": 'raw_proxy',
     },
 }
 
+# 验证次数
+VERIFY_TIMES = 10
 
 SERVER_API = {
     "HOST": '0.0.0.0',

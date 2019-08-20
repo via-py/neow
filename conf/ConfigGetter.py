@@ -21,27 +21,31 @@ class ConfigGetter(object):
 
     @LazyProperty
     def db_type(self):
-        return DATABASE.get('default', {}).get('TYPE', 'REDIS')
+        return DATABASE.get(DB, {}).get('TYPE', 'REDIS')
 
     @LazyProperty
     def db_name(self):
-        return DATABASE.get('default', {}).get('NAME', 'proxy_pool')
+        return DATABASE.get(DB, {}).get('NAME', 'proxy_pool')
 
     @LazyProperty
     def db_host(self):
-        return DATABASE.get('default', {}).get('HOST', '127.0.0.1')
+        return DATABASE.get(DB, {}).get('HOST', '127.0.0.1')
 
     @LazyProperty
     def db_port(self):
-        return DATABASE.get('default', {}).get('PORT', 6379)
+        return DATABASE.get(DB, {}).get('PORT', 6379)
 
     @LazyProperty
     def db_username(self):
-        return DATABASE.get('default', {}).get('USERNAME', '')
+        return DATABASE.get(DB, {}).get('USERNAME', '')
 
     @LazyProperty
     def db_password(self):
-        return DATABASE.get('default', {}).get('PASSWORD', '')
+        return DATABASE.get(DB, {}).get('PASSWORD', '')
+
+    @LazyProperty
+    def table(self):
+        return DATABASE.get(DB, {}).get('TABLE', 'useful_proxy')
 
     @LazyProperty
     def proxy_getter_function(self):
@@ -54,10 +58,6 @@ class ConfigGetter(object):
     @LazyProperty
     def host_port(self):
         return SERVER_API.get('PORT', 5001)
-
-    @LazyProperty
-    def table(self):
-        return SERVER_API.get('TABLE', 'proxy')
 
 
 config = ConfigGetter()
