@@ -11,3 +11,5 @@
 @ModifyTime     :
 @ModifyContent  :
 """
+from manager.ProxyManager import ProxyManager
+from manager.Proxy import Proxy

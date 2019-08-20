@@ -8,8 +8,8 @@
 @Description    :  读取setting中的配置
 @CreateTime     :  2019/8/18 16:01
 ------------------------------------
-@ModifyTime     :  
-@ModifyContent  :  
+@ModifyTime     :
+@ModifyContent  :
 """
 from conf.setting import *
 from utils.ClassUtil import LazyProperty

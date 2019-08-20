@@ -14,6 +14,7 @@ Description     :  延迟加载和单例模式
 
 
 class LazyProperty(object):
+
     def __init__(self, func):
         self.func = func
 
@@ -27,6 +28,10 @@ class LazyProperty(object):
 
 
 class Singleton(type):
+    """
+    Singleton Metaclass
+    """
+
     _inst = {}
 
     def __call__(cls, *args, **kwargs):
