@@ -11,7 +11,7 @@
 @ModifyTime     :  
 @ModifyContent  :  
 """
-from conf import setting
+from conf.setting import USER_AGENTS
 import random
 import requests
 import time
@@ -27,7 +27,7 @@ class RequestUtil(object):
         Random return of a user_agent
         :return: user_agent
         """
-        ua_list = setting.USER_AGENTS
+        ua_list = USER_AGENTS
         return random.choice(ua_list)
 
     @property
@@ -52,15 +52,25 @@ class RequestUtil(object):
 
         while True:
             try:
-                html = requests.get(url, header=headers, timeout=timeout, **kwargs)
-                if any(f in html.content for f in retry_flag):
-                    raise Exception
-                return html
-            except Exception as e:
-                # 多次请求
-                retry_time -= 1
-                if retry_time <= 0:
-                    resp = requests.Response()
-                    resp.status_code = 200
-                    return resp
-                time.sleep(retry_interval)
+                response = requests.get(url, headers=headers, timeout=timeout, **kwargs)
+                print('抓取成功', url, response.status_code)
+                if response.status_code == 200:
+                    return response.content  # 使用response.text的时候会出现乱码的问题
+            except ConnectionError:
+                print('抓取失败', url)
+                return None
+
+            # try:
+            #
+            #     html = requests.get(url, header=headers, timeout=timeout, **kwargs)
+            #     if any(f in html.content for f in retry_flag):
+            #         raise Exception
+            #     return html
+            # except Exception as e:
+            #     # 多次请求
+            #     retry_time -= 1
+            #     if retry_time <= 0:
+            #         resp = requests.Response()
+            #         resp.status_code = 200
+            #         return resp
+            #     time.sleep(retry_interval)
