@@ -116,4 +116,4 @@ def checkConfig():
         raise ConfigError("ProxyGetter: %s doesn't exists" % "/".join(illegal_getter))
 
 
-checkConfig()
+# checkConfig()

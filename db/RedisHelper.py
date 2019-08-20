@@ -46,13 +46,13 @@ class RedisHelper(object):
         """
         return self.__conn.hmget(name, keys, *args)
 
-    def put(self, proxy_obj):
+    def put(self, key, value):
         """
         将代理放入hash
         :param proxy_obj: 为一个键值对
         :return:
         """
-        return self.__conn.hset(proxy_obj)
+        return self.__conn.hset(key, value)
 
     def delete(self, name, *keys):
         """
