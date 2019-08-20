@@ -46,7 +46,7 @@ class DataStore(object):
     """
     __metaclass__ = Singleton
 
-    def __int__(self):
+    def __init__(self):
         self.__initDB()
 
     def __initDB(self):
