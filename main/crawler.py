@@ -169,6 +169,3 @@ def crawl_xicidaili():
             #print(ip, port, address, proxy_type)
             return ':'.join([ip, port]), address, proxy_type
 
-
-if __name__ == '__main__':
-    crawl_xicidaili()
