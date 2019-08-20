@@ -5,7 +5,7 @@
 @Version        :  
 ------------------------------------
 @File           :  Proxy.py
-@Description    :  
+@Description    :  初始化Proxy类
 @CreateTime     :  2019/8/19 11:03
 ------------------------------------
 @ModifyTime     :  

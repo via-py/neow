@@ -5,7 +5,7 @@
 @Version        :  
 ------------------------------------
 @File           :  RedisHelper.py
-@Description    :
+@Description    :  redis操作集合
 @CreateTime     :  2019/8/18 17:02
 ------------------------------------
 @ModifyTime     :  
