@@ -57,6 +57,7 @@ class RequestUtil(object):
                     raise Exception
                 return html
             except Exception as e:
+                # 多次请求
                 retry_time -= 1
                 if retry_time <= 0:
                     resp = requests.Response()
