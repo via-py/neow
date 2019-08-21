@@ -138,7 +138,6 @@ class GetProxy(object, metaclass=ProxyMetaclass):
                     ip_dict['proxy_ip'] = proxy_ip
                     yield ip, proxy_ip, proxy_type, address
 
-
     def crawl_kuaidaili(self):
         """
         快代理
@@ -163,39 +162,42 @@ class GetProxy(object, metaclass=ProxyMetaclass):
                     ip_dict['proxy_ip'] = proxy_ip
                     yield ip, proxy_ip, proxy_type, address
 
-    def crawl_xicidaili(self):
-        """
-        西刺代理
-        :return:
-        """
-        ip_dict = {}
-        for i in range(1, 3):
-            start_url = 'http://www.xicidaili.com/nn/{}'.format(i)
-            headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Cookie': '_free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJWRjYzc5MmM1MTBiMDMzYTUzNTZjNzA4NjBhNWRjZjliBjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUp6S2tXT3g5a0FCT01ndzlmWWZqRVJNek1WanRuUDBCbTJUN21GMTBKd3M9BjsARg%3D%3D--2a69429cb2115c6a0cc9a86e0ebe2800c0d471b3',
-                'Host': 'www.xicidaili.com',
-                'Referer': 'http://www.xicidaili.com/nn/3',
-                'Upgrade-Insecure-Requests': '1',
-            }
-            html = self.crawler.get(url=start_url, header=headers)
-            etree_obj = etree.HTML(html)
-            # 通过筛选response.content，得到包含ip信息的列表
-            infos = etree_obj.xpath("//tr[@class='odd']")
-            for info in infos:
-                ip = info.xpath('./td[2]/text()')[0]
-                port = info.xpath('./td[3]/text()')[0]
-                proxy_type = info.xpath('.//td[@class="country"]/text()')[0]
-                if info.xpath('./td[4]/a/text()'):
-                    address = info.xpath('./td[4]/a/text()')
-                else:
-                    address = '暂无IP来源信息'
-                proxy_ip = ':'.join([ip, port])
-                ip_dict['proxy_type'] = proxy_type
-                ip_dict['address'] = address
-                ip_dict['proxy_ip'] = proxy_ip
-                print(proxy_ip, proxy_type, address)
-                #yield proxy_ip, proxy_type, address
+    #def crawl_xicidaili(self):
+    #     """
+    #     西刺代理
+    #     :return:
+    #     """
+    #     ip_dict = {}
+    #     for i in range(1, 3):
+    #         start_url = 'http://www.xicidaili.com/nn/{}'.format(i)
+    #         headers = {
+    #             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    #             'Cookie': '_free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJWRjYzc5MmM1MTBiMDMzYTUzNTZjNzA4NjBhNWRjZjliBjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMUp6S2tXT3g5a0FCT01ndzlmWWZqRVJNek1WanRuUDBCbTJUN21GMTBKd3M9BjsARg%3D%3D--2a69429cb2115c6a0cc9a86e0ebe2800c0d471b3',
+    #             'Host': 'www.xicidaili.com',
+    #             'Referer': 'http://www.xicidaili.com/nn/3',
+    #             'Upgrade-Insecure-Requests': '1',
+    #         }
+    #         html = self.crawler.get(url=start_url, header=headers)
+    #         etree_obj = etree.HTML(html)
+    #         # 通过筛选response.content，得到包含ip信息的列表
+    #         infos = etree_obj.xpath("//tr[@class='odd']")
+    #         for info in infos:
+    #             ip = info.xpath('./td[2]/text()')[0]
+    #             port = info.xpath('./td[3]/text()')[0]
+    #             proxy_type = info.xpath('.//td[@class="country"]/text()')[0]
+    #             if info.xpath('./td[4]/a/text()'):
+    #                 address = info.xpath('./td[4]/a/text()')
+    #             else:
+    #                 address = '暂无IP来源信息'
+    #             proxy_ip = ':'.join([ip, port])
+    #             ip_dict['proxy_type'] = proxy_type
+    #             ip_dict['address'] = address
+    #             ip_dict['proxy_ip'] = proxy_ip
+    #             print(proxy_ip, proxy_type, address)
+    #             #yield proxy_ip, proxy_type, address
+    #
+
+
 
 
 
