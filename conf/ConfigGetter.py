@@ -59,6 +59,14 @@ class ConfigGetter(object):
     def host_port(self):
         return SERVER_API.get('PORT', 5001)
 
+    @LazyProperty
+    def test_url(self):
+        return TEST_URL
+
+    @LazyProperty
+    def fail_threshold(self):
+        return FAIL_THRESHOLD
+
 
 config = ConfigGetter()
 

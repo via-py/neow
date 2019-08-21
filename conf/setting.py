@@ -53,7 +53,9 @@ DATABASE = {
 }
 
 # 验证次数
-VERIFY_TIMES = 10
+
+FAIL_THRESHOLD = 10
+TEST_URL = "https://www.baidu.com"
 
 SERVER_API = {
     "HOST": '0.0.0.0',

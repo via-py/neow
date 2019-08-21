@@ -1,43 +1,28 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*-
 """
-    Scheduler.py
+    PeriodicTasks.py
     ~~~~~~~~~~~~~~~~~~~~~~~~~
     
     
     
     :author: fengzf
-    :date created: 2019/8/20, 15:03:00
+    :date created: 2019/8/21, 19:42:00
     :python version: 3.6
 """
-# from gevent import monkey
-# monkey.patch_all()
-import sys
-import os
-
 from conf.ConfigGetter import config
 from db import DataStore
 from manager import Proxy
+from schedule.PeriodicCelery import periodic_inst
 from validator.Validator import Validator
 
-from celery import Celery, platforms
-from celery.schedules import crontab
 
-from conf.CeleryConfig import PeriodicCeleryConfig
-
-sys.path.append(os.getcwd())
-
-app = Celery('default_celery')
-app.config_from_object(PeriodicCeleryConfig)
-# platforms.C_FORCE_ROOT = True  # running celery worker by rooter
-
-
-@app.task(name='task_test')
+@periodic_inst.task(name='task_test')
 def test():
     print('hello')
 
 
-@app.task(name='first_verify')
+@periodic_inst.task(name='first_verify')
 def first_verify_proxy():
     """
     校验初次抓取下来的代理
@@ -62,7 +47,7 @@ def first_verify_proxy():
                     return True
 
 
-@app.task(name='common_verify')
+@periodic_inst.task(name='common_verify')
 def common_verify_proxy(crontab_time):
     """
     校验未校验过的代理
@@ -83,7 +68,7 @@ def common_verify_proxy(crontab_time):
     return False
 
 
-@app.task(name='delete_useless')
+@periodic_inst.task(name='delete_useless')
 def delete_useless_proxy():
     """
     定期删除无效代理
@@ -93,5 +78,4 @@ def delete_useless_proxy():
     db.changeTable('useful_proxy')
     proxies = db.get({'fail_count': {'gt': 9}})
     db.delete(proxies, many=True)
-
 

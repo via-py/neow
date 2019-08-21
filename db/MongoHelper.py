@@ -44,7 +44,7 @@ class MongoHelper(object):
             return self.collection.insert_many(doc).inserted_ids
         return self.collection.insert_one(doc).inserted_id
 
-    def update(self, condition, doc, many):
+    def update(self, condition, doc, many=False):
         """
         更新数据
         :param condition: (dict)

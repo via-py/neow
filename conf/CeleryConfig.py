@@ -10,6 +10,9 @@
     :date created: 2019/8/20, 14:25:00
     :python version: 3.6
 """
+import time
+
+from celery import Celery
 from celery.schedules import crontab
 from kombu import Exchange, Queue
 
@@ -149,7 +152,8 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
         'first_verify': {
             # 对应task注册时给的name
             'task': 'first_verify',
-            'schedule': crontab(minute=30, hour=0),
+            # 一个小时检查一次
+            'schedule': crontab(minute=30, hour='*/1'),
             'options': {
                 'queue': 'first_verify.queue',
                 'routing_key': 'first_verify.queue',
@@ -160,13 +164,15 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
         'common_verify': {
             # 对应task注册时给的name
             'task': 'common_verify',
+            # 四小时检查一次
             'schedule': crontab(minute=15, hour='*/4'),
             'options': {
                 'queue': 'common_verify.queue',
                 'routing_key': 'common_verify.queue',
                 'exchange': 'common_verify.queue',
                 'exchange_type': 'direct'
-            }
+            },
+            'args': (time.strftime('%Y%m%d%H%M%S', time.localtime()))
         },
         'delete_useless': {
             # 对应task注册时给的name
@@ -193,3 +199,8 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
     }
 
 
+def create_celery(name, config):
+    inst = Celery(name)
+    inst.config_from_object(config)
+    inst.C_FORCE_ROOT = True
+    return inst
