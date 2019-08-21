@@ -8,16 +8,14 @@
 @Description    :  从公网获取免费IP-proxy
 @CreateTime     :  2019/8/19 16:56
 ------------------------------------
-@ModifyTime     :
-@ModifyContent  :
+@ModifyTime     : 8.21 16:30
+@ModifyContent  : 判断能否获取到IP来源信息，不能获取，则为暂无IP信息来源
 """
 import sys
-import re
 from pyquery import PyQuery as pq
 from lxml import etree
 from utils import RequestUtil
-from manager import Proxy
-from db.RedisHelper import RedisHelper
+
 
 sys.path.append('..')
 
@@ -200,7 +198,4 @@ class GetProxy(object, metaclass=ProxyMetaclass):
                 #yield proxy_ip, proxy_type, address
 
 
-if __name__ == '__main__':
-    A = GetProxy()
-    A.crawl_xicidaili()
 
