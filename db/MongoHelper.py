@@ -5,115 +5,113 @@
 @Version        :  
 ------------------------------------
 @File           :  MongoHelper.py
-@Description    :  mongodb操作集合
+@Description    :  封装mongodb操作工具类接口
 @CreateTime     :  2019/8/18 17:02
 ------------------------------------
 @ModifyTime     :  
 @ModifyContent  :  
 """
 from pymongo import MongoClient
-from conf.ConfigGetter import config
 
 
 class MongoHelper(object):
+
     def __init__(self, name, host, port, **kwargs):
         self.name = name
         self.client = MongoClient(host, port, **kwargs)
-        self.db = self.client[name]
-        self.collection = self.db[config.table]
-
-    def get(self, condition, many):
-        """
-        获取符合条件的数据
-        :param condition: (dict)
-        :param many: (bool)
-        :return:dict
-        """
-        if many:
-            return self.collection.find(condition)
-        return self.collection.find_one(condition)
-
-    def put(self, doc, many):
-        """
-        插入数据
-        :param doc: (dict)
-        :param many: (bool)
-        :return:str
-        """
-        if many:
-            return self.collection.insert_many(doc).inserted_ids
-        return self.collection.insert_one(doc).inserted_id
-
-    def update(self, condition, doc, many=False):
-        """
-        更新数据
-        :param condition: (dict)
-        :param doc: (dict)
-        :param many: (bool)
-        :return:int
-        """
-        if many:
-            return self.collection.update_many(condition, {'$set': doc}).modified_count
-        return self.collection.update_one(condition, {'$set': doc}).modified_count
-
-    def delete(self, condition, many):
-        """
-        删除数据
-        :param condition: (dict)
-        :param many: (bool)
-        :return:int
-        """
-        if many:
-            return self.collection.delete_many(condition).deleted_count
-        return self.collection.delete_one(condition).deleted_count
-
-    def exists(self, condition):
-        """
-        判断是否存在
-        :param condition:(dict)
-        :return:bool
-        """
-        result = self.collection.find(condition)
-        return True if len(result) else False
-
-    def pop(self, **kwargs):
-        """
-        弹出最后一个数据
-        :param kwargs:
-        :return:dict
-        """
-        return self.collection.find({'$pop': {'field': 1}})
-
-    def getAll(self):
-        """
-        获取所有数据
-        :return:list
-        """
-        return self.collection.find()
-
-    def clear(self):
-        """
-        清空数据集合
-        :return:
-        """
-        self.collection.delete_many({})
+        self.db = self.client.proxy
 
     def changeTable(self, name):
         """
-        切换数据集合
+        切换操作对象
         :param name:
         :return:
         """
-        self.collection = self.db[name]
+        self.name = name
+
+    def get(self, proxy):
+        """
+        从hash中获取对应的proxy, 使用前需要调用changeTable()
+        :param proxy:
+        :return:
+        """
+        data = self.db[self.name].find_one({'proxy': proxy})
+        return data['num'] if data is not None else None
+
+    def put(self, proxy, num=1):
+        """
+        将代理放入hash, 使用changeTable指定hash name
+        :param proxy:
+        :param num:
+        :return:
+        """
+        if self.db[self.name].find_one({'proxy': proxy}):
+            return None
+        else:
+            self.db[self.name].insert({'proxy': proxy, 'num': num})
+
+    def pop(self):
+        """
+        返回并删除一个proxy信息
+        :return:
+        """
+        data = list(self.db[self.name].aggregate([{'$sample': {'size': 1}}]))
+        if data:
+            data = data[0]
+            value = data['proxy']
+            self.delete(value)
+            return {'proxy': value, 'value': data['num']}
+        return None
+
+    def delete(self, value):
+        """
+        移除指定代理, 使用changeTable指定hash name
+        :param value:
+        :return:
+        """
+        self.db[self.name].remove({'proxy': value})
+
+    def exists(self, key):
+        """
+        判断指定代理是否存在, 使用changeTable指定hash name
+        :param key:
+        :return:
+        """
+        return True if self.db[self.name].find_one({'proxy': key}) is not None else False
+
+    def update(self, key, value):
+        """
+        更新 proxy 属性
+        :param key:
+        :param value:
+        :return:
+        """
+        self.db[self.name].update({'proxy': key}, {'$inc': {'num': value}})
+
+    def getAll(self):
+        """
+        列表形式返回所有代理, 使用changeTable指定hash name
+        :return:
+        """
+        return {p['proxy']: p['num'] for p in self.db[self.name].find()}
+
+    def clean(self):
+        """
+        清空所有代理, 使用changeTable指定hash name
+        :return:
+        """
+        self.client.drop_database('proxy')
+
+    def delete_all(self):
+        """
+        删除存储库
+        :return:
+        """
+        self.db[self.name].remove()
 
     def getNumber(self):
         """
-        获取数据个数
-        :return:int
+        返回代理数量
+        :return:
         """
-        return self.collection.find({}).count()
-
-
-if __name__ == '__main__':
-    db = MongoHelper('proxy_pool', '127.0.0.1', 27017)
-
+        return self.db[self.name].count()

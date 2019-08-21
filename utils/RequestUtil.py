@@ -69,16 +69,10 @@ class RequestUtil(object):
             headers.update(header)
         while True:
             try:
-                html = requests.get(url, headers=headers, timeout=timeout, **kwargs)
-                if any(f in html.content for f in retry_flag):
-                    raise Exception
-                return html
-            except Exception as e:
-                print(e)
-                retry_time -= 1
-                if retry_time <= 0:
-                    # 多次请求失败
-                    resp = Response()
-                    resp.status_code = 200
-                    return resp
-                time.sleep(retry_interval)
+                response = requests.get(url, headers=headers)
+                print('抓取成功', url, response.status_code)
+                if response.status_code == 200:
+                    return response.text
+            except ConnectionError:
+                print('抓取失败', url)
+                return None

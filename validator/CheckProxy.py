@@ -15,6 +15,7 @@ from manager.getProxy import GetProxy
 from utils.FunctionUtil import verifyProxyFormat
 from utils.LogHandler import LogHandler
 
+
 log = LogHandler('check_proxy', file=False)
 
 
@@ -60,8 +61,3 @@ class CheckProxy(object):
                 log.info("{} fetch proxy: {}".format(func_name, proxy))
                 count += 1
         log.info("{n} completed, fetch proxy number: {c}".format(n=func_name, c=count))
-
-
-if __name__ == '__main__':
-    CheckProxy.checkAllGetProxyFunc()
-    CheckProxy.checkGetProxyFunc(GetProxy.freeProxy01)
