@@ -62,6 +62,3 @@ class CheckProxy(object):
         log.info("{n} completed, fetch proxy number: {c}".format(n=func_name, c=count))
 
 
-if __name__ == '__main__':
-    CheckProxy.checkAllGetProxyFunc()
-    CheckProxy.checkGetProxyFunc(GetProxy.freeProxy01)
