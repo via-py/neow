@@ -67,32 +67,42 @@ class DataStore(object):
                                                           port=config.db_port,
                                                           password=config.db_password)
 
+    def changeTable(self, name):
+        """ 切换操作对象 raw_proxy/useful_proxy """
+        self.client.changeTable(name)
+
     def get(self, key, **kwargs):
+        """ 返回指定proxy的信息 """
         return self.client.get(key, **kwargs)
 
     def put(self, key, **kwargs):
+        """ 存入一个proxy信息 """
         return self.client.put(key, **kwargs)
 
     def update(self, key, value, **kwargs):
+        """ 更新指定proxy信息 """
         return self.client.update(key, value, **kwargs)
 
     def delete(self, key, **kwargs):
+        """ 删除指定proxy """
         return self.client.delete(key, **kwargs)
 
     def exists(self, key, **kwargs):
+        """ 判断指定proxy是否存在 """
         return self.client.exists(key, **kwargs)
 
     def pop(self, **kwargs):
+        """ 返回并删除一个proxy信息 """
         return self.client.pop(**kwargs)
 
     def getAll(self):
+        """ 列表形式返回所有代理 """
         return self.client.getAll()
 
     def clear(self):
+        """ 清除所有proxy信息 """
         return self.client.clear()
 
-    def changeTable(self, name):
-        self.client.changeTable(name)
-
     def getNumber(self):
+        """ 返回proxy数据量 """
         return self.client.getNumber()

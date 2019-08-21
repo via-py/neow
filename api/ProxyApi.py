@@ -5,14 +5,16 @@
 @Version        :
 ------------------------------------
 @File           :  ProxyApi.py
-@Description    :  Flask启动入口
+@Description    :  启动Flask接口
 @CreateTime     :  2019/8/18 11:48
 ------------------------------------
 @ModifyTime     :  
 @ModifyContent  :  
 """
 import sys
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, jsonify, request
+from conf.ConfigGetter import config
+from manager.ProxyManager import ProxyManager
 
 sys.path.append('../')
 
@@ -53,7 +55,8 @@ def get():
     获取单条IP记录请求
     :return:
     """
-    return None
+    proxy = ProxyManager().get()
+    return proxy.info_json if proxy else {"code": 0, "src": "no proxy"}
 
 
 @app.route('/get_all/')
@@ -62,7 +65,8 @@ def getAll():
     获取多条IP记录请求
     :return:
     """
-    return None
+    proxies = ProxyManager().getAll()
+    return [_.info_dict for _ in proxies]
 
 
 @app.route('/refresh/')
@@ -80,7 +84,8 @@ def getStatus():
     获取IP存活状态
     :return:
     """
-    return None
+    status = ProxyManager().getNumber()
+    return status
 
 
 @app.route('/delete/', methods=['GET'])
@@ -89,8 +94,14 @@ def delete():
     请求删除IP数据记录
     :return:
     """
-    return None
+    proxy = request.args.get('proxy')
+    ProxyManager().delete(proxy)
+    return {"code": 0, "src": "success"}
+
+
+def runFlask():
+    app.run(host=config.host_ip, port=config.host_port)
 
 
 if __name__ == '__main__':
-    app.run()
+    runFlask()

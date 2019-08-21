@@ -5,130 +5,125 @@
 @Version        :  
 ------------------------------------
 @File           :  RedisHelper.py
-@Description    :  redis操作集合
+@Description    :  封装redis操作工具类接口
 @CreateTime     :  2019/8/18 17:02
 ------------------------------------
 @ModifyTime     :  
 @ModifyContent  :  
 """
-import re
-from random import choice
+import random
 from redis import Redis, BlockingConnectionPool
+from conf.setting import PY3
 
 
 class RedisHelper(object):
     """
-    Redis存放
+    Redis中代理存放的结构为hash：
+        原始代理存放在name为raw_proxy的hash中, key为代理的ip:por, value为代理属性的字典;
+        验证后的代理存放在name为useful_proxy的hash中, key为代理的ip:port, value为代理属性的字典;
+
     """
+
     def __init__(self, name, **kwargs):
         """
-        init初始化
-        :param name:
-        :param kwargs:
+        init
+        :param name: hash name
+        :param host: host
+        :param port: port
+        :param password: password
+        :return:
         """
         self.name = name
         self.__conn = Redis(connection_pool=BlockingConnectionPool(**kwargs))
 
-    def get(self, name, key):
+    def changeTable(self, name):
         """
-        从hash中回去对应的proxy
-        :param proxy_str:
+        切换操作对象
+        :param name: raw_proxy/useful_proxy
         :return:
         """
-        return self.__conn.hget(name, key)
+        self.name = name
 
-    def get_many(self, name, keys, *args):
+    def get(self, proxy_str):
         """
-        批量读取数据属性（没有则新建）
-        :param keys:
-        :param args:
+        从hash中获取对应的proxy, 使用前需要调用changeTable()
+        :param proxy_str: proxy str
         :return:
         """
-        return self.__conn.hmget(name, keys, *args)
+        data = self.__conn.hget(name=self.name, key=proxy_str)
+        if data:
+            return data.decode('utf-8') if PY3 else data
+        else:
+            return None
 
-    def put(self, name, key, value):
+    def put(self, proxy_obj):
         """
-        将代理放入hash
-        :param proxy_obj: 为一个键值对
+        将代理放入hash, 使用changeTable指定hash name
+        :param proxy_obj: Proxy obj
         :return:
         """
-        return self.__conn.hset(name, key, value)
+        data = self.__conn.hset(self.name, proxy_obj.proxy, proxy_obj.info_json)
+        return data
 
-    def delete(self, name, *keys):
+    def delete(self, proxy_str):
         """
-        移除指定代理
-        :param proxy_str:
+        移除指定代理, 使用changeTable指定hash name
+        :param proxy_str: proxy str
         :return:
         """
-        self.__conn.hdel(name, *keys)
+        self.__conn.hdel(self.name, proxy_str)
 
-    def exists(self, name, key):
+    def exists(self, proxy_str):
         """
-        判断指定代理是否存在
-        :param proxy_str:
+        判断指定代理是否存在, 使用changeTable指定hash name
+        :param proxy_str: proxy str
         :return:
         """
-        try:
-            self.__conn.hexists(name, key)
-        except Exception:
-            print("%s代理不存在" % key)
+        return self.__conn.hexists(self.name, proxy_str)
 
-    def update(self, name, key, value):
+    def update(self, proxy_obj):
         """
-        更新proxy属性
+        更新 proxy 属性
         :param proxy_obj:
         :return:
         """
-        self.__conn.hset(name, key, value)
+        self.__conn.hset(self.name, proxy_obj.proxy, proxy_obj.info_json)
 
-    def update_many(self, name, mapping):
+    def pop(self):
         """
-        批量更新数据属性，没有则创建
-        :param mapping:
+        返回并删除一个proxy信息
+        :return: dict {proxy: value}
+        """
+        proxies = self.__conn.hkeys(self.name)
+        if proxies:
+            proxy = random.choice(proxies)
+            value = self.__conn.hget(self.name, proxy)
+            self.delete(proxy)
+            return {'proxy': proxy.decode('utf-8') if PY3 else proxy,
+                    'value': value.decode('utf-8') if PY3 and value else value}
+        return None
+
+    def getAll(self):
+        """
+        列表形式返回所有代理, 使用changeTable指定hash name
         :return:
         """
-        return self.__conn.hmset(name, mapping)
-
-    def getall(self, name):
-        """
-        获取所有代理
-        :return:
-        """
-        try:
-            res = self.__conn.hgetall(name)
-        except Exception as e:
-            print('查询所有hash类型key失败,失败原因:%s' % e)
+        item_dict = self.__conn.hgetall(self.name)
+        if PY3:
+            return [value.decode('utf8') for key, value in item_dict.items()]
         else:
-            if res:
-                new_data = {}
-                for k, v in res.items():
-                    new_data[k.decode()] = v.decode()
-                return new_data
+            return item_dict.values()
 
-    def pop(self, name):
+    def clean(self):
         """
-        弹出一个代理
+        清空所有代理, 使用changeTable指定hash name
         :return:
         """
-        result = self.__conn.hgetall(name)
-        return choice(result)
-
-    def clear(self):
-        """
-        清空所有代理
-        :return:
-        """
-        pass
+        return self.__conn.delete(self.name)
 
     def getNumber(self):
         """
-        切换操作对象
+        返回代理数量
         :return:
         """
-        pass
-
-
-if __name__ == '__main__':
-    conn = RedisHelper()
-    result = conn.batch(680, 688)
-    print(result)
+        return self.__conn.hlen(self.name)
