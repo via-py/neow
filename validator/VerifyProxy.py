@@ -10,7 +10,7 @@
     :date created: 2019/8/19, 20:04:00
     :python version: 3.6
 """
-import time
+from datetime import datetime
 
 import requests
 
@@ -30,9 +30,7 @@ class ValidatorProxy(object):
             return True
         return False
 
-    def validator_one(self, proxy_id):
-        proxy_json = self.conn.get({'_id': proxy_id})
-        print(proxy_json)
+    def validator_one(self, proxy_json):
         if proxy_json:
             proxy = Proxy.newProxyFromJson(proxy_json)
             try:
@@ -42,14 +40,14 @@ class ValidatorProxy(object):
                 proxy.fail_count += 1
                 proxy.check_count += 1
                 proxy.last_status = 0
-                proxy.last_time = time.time()
+                proxy.last_time = datetime.utcnow()
                 self.conn.update(proxy_json, proxy.info_json)
                 return False
             else:
                 print('connect success')
                 proxy.check_count = 0
                 proxy.last_status = 1
-                proxy.last_time = time.time()
+                proxy.last_time = datetime.utcnow()
                 self.conn.update(proxy_json, proxy.info_json)
                 return True
         pass
