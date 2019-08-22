@@ -12,9 +12,8 @@
 """
 import time
 
-from celery import Celery
+from celery import Celery, platforms
 from celery.schedules import crontab
-from kombu import Exchange, Queue
 
 
 class BaseCeleryConfig(object):
@@ -89,7 +88,8 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
     导入配置
     """
     CELERY_IMPORTS = (
-        'schedule.Scheduler',
+        # 'schedule.Scheduler',
+        'schedule.PeriodicTasks',
     )
 
     """
@@ -104,13 +104,17 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
             'queue': 'first_verify.queue',
             'routing_key': 'first_verify.queue',
         },
+        'common_verify_all': {
+            'queue': 'common_verify_all.queue',
+            'routing_key': 'common_verify_all.queue',
+        },
         'common_verify': {
             'queue': 'common_verify.queue',
             'routing_key': 'common_verify.queue',
         },
-        'delete_useless': {
-            'queue': 'delete_useless.queue',
-            'routing_key': 'delete_useless.queue',
+        'crawl_proxy': {
+            'queue': 'crawl_proxy.queue',
+            'routing_key': 'crawl_proxy.queue',
         },
         'test': {
             'queue': 'test.queue',
@@ -128,15 +132,20 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
             'exchange_type': 'direct',
             'routing_key': 'first_verify.queue',
         },
+        'common_verify_all.queue': {
+            'exchange': 'common_verify_all.queue',
+            'exchange_type': 'direct',
+            'routing_key': 'common_verify_all.queue',
+        },
         'common_verify.queue': {
             'exchange': 'common_verify.queue',
             'exchange_type': 'direct',
             'routing_key': 'common_verify.queue',
         },
-        'delete_useless.queue': {
-            'exchange': 'delete_useless.queue',
+        'crawl_proxy.queue': {
+            'exchange': 'crawl_proxy.queue',
             'exchange_type': 'direct',
-            'routing_key': 'delete_useless.queue',
+            'routing_key': 'crawl_proxy.queue',
         },
         'test.queue': {
             'exchange': 'test.queue',
@@ -153,7 +162,7 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
             # 对应task注册时给的name
             'task': 'first_verify',
             # 一个小时检查一次
-            'schedule': crontab(minute=30, hour='*/1'),
+            'schedule': crontab(minute=15, hour='*/1'),
             'options': {
                 'queue': 'first_verify.queue',
                 'routing_key': 'first_verify.queue',
@@ -161,27 +170,28 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
                 'exchange_type': 'direct'
             }
         },
-        'common_verify': {
+        'common_verify_all': {
             # 对应task注册时给的name
-            'task': 'common_verify',
+            'task': 'common_verify_all',
             # 四小时检查一次
-            'schedule': crontab(minute=15, hour='*/4'),
+            'schedule': crontab(minute=30, hour='*/4'),
             'options': {
-                'queue': 'common_verify.queue',
-                'routing_key': 'common_verify.queue',
-                'exchange': 'common_verify.queue',
+                'queue': 'common_verify_all.queue',
+                'routing_key': 'common_verify_all.queue',
+                'exchange': 'common_verify_all.queue',
                 'exchange_type': 'direct'
             },
-            'args': (time.strftime('%Y%m%d%H%M%S', time.localtime()))
+            # 'args': (time.strftime('%Y%m%d%H%M%S', time.localtime()))
         },
-        'delete_useless': {
+        'crawl_proxy': {
             # 对应task注册时给的name
-            'task': 'delete_useless',
-            'schedule': crontab(minute=45, hour='*/4'),
+            'task': 'crawl_proxy',
+            # 'schedule': crontab(minute=45, hour='*/1'),
+            'schedule': crontab(minute='*/5',),
             'options': {
-                'queue': 'delete_useless.queue',
-                'routing_key': 'delete_useless.queue',
-                'exchange': 'delete_useless.queue',
+                'queue': 'crawl_proxy.queue',
+                'routing_key': 'crawl_proxy.queue',
+                'exchange': 'crawl_proxy.queue',
                 'exchange_type': 'direct'
             }
         },
@@ -202,5 +212,5 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
 def create_celery(name, config):
     inst = Celery(name)
     inst.config_from_object(config)
-    inst.C_FORCE_ROOT = True
+    platforms.C_FORCE_ROOT = True
     return inst

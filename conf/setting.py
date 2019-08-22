@@ -8,13 +8,14 @@
 @Description    :  全局配置文件
 @CreateTime     :  2019/8/18 15:44
 ------------------------------------
-@ModifyTime     :
-@ModifyContent  :
+@ModifyTime     :  2019/8/22 14:22
+@ModifyContent  :  注释checkConfig方法，将该方法需要的导入的模块移到方法内部。
+                   导入模块会造成celery启动时循环导入，发生ImportError: can't import name XXX，无法启动。
 """
 import sys
 from os import getenv
 from logging import getLogger
-from manager.getProxy import GetProxy
+
 
 log = getLogger(__name__)
 
@@ -80,6 +81,7 @@ class ConfigError(BaseException):
 
 
 def checkConfig():
+    from manager.getProxy import GetProxy
     if DB_TYPE not in ['REDIS', 'MONGODB']:
         raise ConfigError("db_type don't support: %s, must REDIS/MONGODB." % DB_TYPE)
 
@@ -91,4 +93,4 @@ def checkConfig():
         raise ConfigError("ProxyGetter: %s doesn't exists" % "/".join(illegal_getter))
 
 
-checkConfig()
+# checkConfig()
