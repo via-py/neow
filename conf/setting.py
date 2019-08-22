@@ -52,10 +52,16 @@ DATABASE = {
     },
 }
 
+
+# 开关
+TESTER_ENABLED = True
+GETTER_ENABLED = True
+API_ENABLED = True
+
 # 验证次数
 
 FAIL_THRESHOLD = 10
-TEST_URL = "https://www.baidu.com"
+TEST_URL = "http://icanhazip.com/"
 
 SERVER_API = {
     "HOST": '0.0.0.0',
@@ -65,7 +71,7 @@ SERVER_API = {
 # register the proxy getter function
 PROXY_GETTER = [
     "crawl_daili66", "crawl_ip3366", "crawl_89ip",
-    "crawl_kxdaili", "crawl_kuaidaili"
+    "crawl_kxdaili", "crawl_kuaidaili", "crawl_xicidaili"
 ]
 
 """ API config http://127.0.0.1:5010 """

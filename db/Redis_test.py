@@ -13,6 +13,7 @@
 """
 import re
 from random import choice
+import random
 from redis import Redis, BlockingConnectionPool
 
 
@@ -111,7 +112,11 @@ class RedisHelper(object):
         :return:
         """
         result = self.__conn.hgetall(name)
-        return choice(result)
+        IPAgents = []
+        for key, value in result.items():
+            IPAgents.append(value)
+        result_info = random.choice(IPAgents)
+        return result_info
 
     def clear(self):
         """

@@ -70,9 +70,9 @@ class RequestUtil(object):
         while True:
             try:
                 response = requests.get(url, headers=headers)
-                print('抓取成功', url, response.status_code)
+                #print('抓取成功', url, response.status_code)
                 if response.status_code == 200:
                     return response.text
             except ConnectionError:
-                print('抓取失败', url)
+                #print('抓取失败', url)
                 return None
