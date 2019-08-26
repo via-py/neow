@@ -42,7 +42,7 @@ class GetProxy(object, metaclass=ProxyMetaclass):
     def get_proxies(self, callback):
         proxies = []
         for proxy in eval("self.{}()".format(callback)):
-            print('成功获取到代理', proxy)
+            # print('成功获取到代理', proxy)
             proxies.append(proxy)
         return proxies
 

@@ -61,3 +61,5 @@ class CheckProxy(object):
                 log.info("{} fetch proxy: {}".format(func_name, proxy))
                 count += 1
         log.info("{n} completed, fetch proxy number: {c}".format(n=func_name, c=count))
+
+
