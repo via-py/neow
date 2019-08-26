@@ -11,7 +11,12 @@
 @ModifyTime     :  
 @ModifyContent  :  
 """
+import json
+import random
+
 from pymongo import MongoClient
+
+from conf.setting import DB_NAME
 
 
 class MongoHelper(object):
@@ -19,7 +24,7 @@ class MongoHelper(object):
     def __init__(self, name, host, port, **kwargs):
         self.name = name
         self.client = MongoClient(host, port, **kwargs)
-        self.db = self.client.proxy
+        self.db = self.client[DB_NAME]
 
     def changeTable(self, name):
         """
@@ -29,78 +34,81 @@ class MongoHelper(object):
         """
         self.name = name
 
-    def get(self, proxy):
+    def get(self, proxy_str):
         """
         从hash中获取对应的proxy, 使用前需要调用changeTable()
-        :param proxy:
-        :return:
+        :param proxy_str: proxy.proxy 属性(ip:port)
+        :return:str: json 字符串
         """
-        data = self.db[self.name].find_one({'proxy': proxy})
-        return data['num'] if data is not None else None
+        data = self.db[self.name].find_one({'proxy': proxy_str})
+        del(data['_id'])
+        return json.dumps(data) if data else None
 
-    def put(self, proxy, num=1):
+    def put(self, proxy_obj):
         """
         将代理放入hash, 使用changeTable指定hash name
-        :param proxy:
-        :param num:
+        :param proxy_obj: proxy 对象
         :return:
         """
-        if self.db[self.name].find_one({'proxy': proxy}):
-            return None
+        if self.db[self.name].find_one({'proxy': proxy_obj.proxy}):
+            self.update(proxy_obj)
         else:
-            self.db[self.name].insert({'proxy': proxy, 'num': num})
+            self.db[self.name].insert(proxy_obj.info_dict)
 
     def pop(self):
         """
         返回并删除一个proxy信息
-        :return:
+        :return: proxy_json
         """
-        data = list(self.db[self.name].aggregate([{'$sample': {'size': 1}}]))
-        if data:
-            data = data[0]
-            value = data['proxy']
-            self.delete(value)
-            return {'proxy': value, 'value': data['num']}
+        proxies = self.getAll()
+        if proxies:
+            proxy_json = random.choice(proxies)
+            proxy_str = json.loads(proxy_json)['proxy']
+            self.delete(proxy_str)
+            return proxy_json
         return None
 
-    def delete(self, value):
+    def delete(self, proxy_str):
         """
         移除指定代理, 使用changeTable指定hash name
-        :param value:
+        :param proxy_str:
         :return:
         """
-        self.db[self.name].remove({'proxy': value})
+        self.db[self.name].remove({'proxy': proxy_str})
 
-    def exists(self, key):
+    def exists(self, proxy_str):
         """
         判断指定代理是否存在, 使用changeTable指定hash name
-        :param key:
+        :param proxy_str:
         :return:
         """
-        return True if self.db[self.name].find_one({'proxy': key}) is not None else False
+        return True if self.db[self.name].find_one({'proxy': proxy_str}) else False
 
-    def update(self, key, value):
+    def update(self, proxy_obj):
         """
         更新 proxy 属性
-        :param key:
-        :param value:
+        :param proxy_obj:
         :return:
         """
-        self.db[self.name].update({'proxy': key}, {'$inc': {'num': value}})
+        self.db[self.name].update({'proxy': proxy_obj.proxy}, {'$set': proxy_obj.info_dict})
 
     def getAll(self):
         """
         列表形式返回所有代理, 使用changeTable指定hash name
         :return:
         """
-        return {p['proxy']: p['num'] for p in self.db[self.name].find()}
+        proxies_json = []
+        for proxy in self.db[self.name].find():
+            del(proxy['_id'])
+            proxies_json.append(json.dumps(proxy))
+        return proxies_json
 
     def clean(self):
         """
         清空所有代理, 使用changeTable指定hash name
         :return:
         """
-        self.client.drop_database('proxy')
+        self.client.drop_database(DB_NAME)
 
     def delete_all(self):
         """

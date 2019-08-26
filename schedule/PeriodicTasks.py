@@ -36,27 +36,27 @@ def first_verify_proxy():
     db = DataStore()
     db.changeTable('raw_proxy')
     if db.getNumber() > 0:
-        proxy_json = db.get({})
+        proxy_json = db.get('')
         proxy_obj = Proxy.newProxyFromJson(proxy_json)
         vp = Validator()
         while True:
             if proxy_obj.fail_count > config.fail_threshold:
                 vp.log.error('Fail count is out of threshold, proxy will delete.')
-                db.delete(proxy_obj.info_dict)
+                db.delete(proxy_obj.proxy)
                 return False
             else:
                 if vp.verify(proxy_obj):
+                    db.delete(proxy_obj.proxy)
                     db.changeTable('useful_proxy')
-                    db.put(proxy_obj.info_dict)
-                    db.changeTable('raw_proxy')
-                    db.delete(proxy_obj.info_dict)
+                    db.put(proxy_obj)
                     return True
 
 
 @periodic_inst.task(name='common_verify_all')
 def common_verify_all_proxy():
     """
-    提出所有ip
+    校验所有有用ip
+    第一步：提出所有ip，分发异步任务
     :return:
     """
     db = DataStore()
@@ -72,13 +72,14 @@ def common_verify_all_proxy():
 @periodic_inst.task(name='common_verify')
 def common_verify_proxy(proxy_obj):
     """
-    校验common_verify_all_proxy中传过来的代理
+    校验所有有用ip
+    第二步：校验common_verify_all_proxy中传过来的代理
     :param proxy_obj: 校验对象
     :return:
     """
     db = DataStore()
     if proxy_obj.fail_count > config.fail_threshold:
-        db.delete(proxy_obj)
+        db.delete(proxy_obj.proxy)
         return False
     else:
         vp = Validator()
@@ -87,35 +88,6 @@ def common_verify_proxy(proxy_obj):
         for i in range(threshold):
             if vp.verify(proxy_obj):
                     return True
-
-
-# @periodic_inst.task(name='common_verify')
-# def common_verify_proxy(crontab_time):
-#     """
-#     校验common_verify_all_proxy中传过来的代理
-#     :param crontab_time: 校验预定开始时间
-#     :return:
-#     """
-#     db = DataStore()
-#     db.changeTable('useful_proxy')
-#     if config.db_type == 'mongo':
-#         proxy_json = db.get({'last_time': {'$lt': crontab_time}})
-#     else:
-#         proxy_json = db.get({'last_time': {'$lt': crontab_time}})
-#     print(proxy_json)
-#     print(type(proxy_json))
-#     if proxy_json:
-#         proxy_obj = Proxy.newProxyFromJson(proxy_json)
-#         if proxy_obj.fail_count > config.fail_threshold:
-#             db.delete(proxy_obj)
-#             return False
-#         else:
-#             vp = Validator()
-#             threshold = 3
-#             for i in range(threshold):
-#                 if vp.verify(proxy_obj):
-#                     return True
-#     return False
 
 
 @periodic_inst.task(name='crawl_proxy')

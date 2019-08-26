@@ -47,8 +47,8 @@ class RedisHelper(object):
     def get(self, proxy_str):
         """
         从hash中获取对应的proxy, 使用前需要调用changeTable()
-        :param proxy_str: proxy str
-        :return:
+        :param proxy_str: proxy.proxy 属性(ip:port)
+        :return: json 字符串
         """
         data = self.__conn.hget(name=self.name, key=proxy_str)
         if data:
@@ -92,15 +92,16 @@ class RedisHelper(object):
     def pop(self):
         """
         返回并删除一个proxy信息
-        :return: dict {proxy: value}
+        :return: proxy_json
         """
         proxies = self.__conn.hkeys(self.name)
         if proxies:
             proxy = random.choice(proxies)
             value = self.__conn.hget(self.name, proxy)
             self.delete(proxy)
-            return {'proxy': proxy.decode('utf-8') if PY3 else proxy,
-                    'value': value.decode('utf-8') if PY3 and value else value}
+            # return {'proxy': proxy.decode('utf-8') if PY3 else proxy,
+            #         'value': value.decode('utf-8') if PY3 and value else value}
+            return value.decode('utf-8') if PY3 and value else value
         return None
 
     def getAll(self):
@@ -110,7 +111,7 @@ class RedisHelper(object):
         """
         item_dict = self.__conn.hgetall(self.name)
         if PY3:
-            return [value.decode('utf8') for key, value in item_dict.items()]
+            return [value.decode('utf-8') for key, value in item_dict.items()]
         else:
             return item_dict.values()
 
