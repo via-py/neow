@@ -38,8 +38,8 @@ class ProxyManager(object):
         for proxyGetter in config.proxy_getter_function:
             self.log.info('ProxyFetch - {func}：start'.format(func=proxyGetter))
             try:
-                for proxy in getattr(GetProxy, proxyGetter.strip())():
-                    proxy = proxy.strip()
+                for proxy_tuple in getattr(GetProxy(), proxyGetter.strip())():  # 调用类方法时，类名后要加括号
+                    proxy = proxy_tuple[1].strip()
 
                     if not proxy or not verifyProxyFormat(proxy):
                         self.log.error('ProxyFetch - {func}:{proxy} illegal'.format(func=proxyGetter, proxy=proxy.ljust(20)))
@@ -49,7 +49,7 @@ class ProxyManager(object):
                         continue
                     else:
                         self.log.info('ProxyFetch - {func}:{proxy} success'.format(func=proxyGetter, proxy=proxy.ljust(20)))
-                        self.db.put(Proxy(proxy, source=proxyGetter))
+                        self.db.put(Proxy(proxy, region=proxy_tuple[-2], proxy_type=proxy_tuple[-1], source=proxyGetter))
                         proxy_set.add(proxy)
             except Exception as e:
                 self.log.error('ProxyFetch - {func}: error'.format(func=proxyGetter))

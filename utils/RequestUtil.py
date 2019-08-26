@@ -47,6 +47,7 @@ class RequestUtil(object):
         """
         return {'User-Agent': self.user_agent,
                 'Accept': '*/*',
+                # 'Accept-Encoding': 'gzip',
                 'Connection': 'keep-alive',
                 'Accept-Language': 'zh-CN,zh;q=0.8'}
 
@@ -72,7 +73,10 @@ class RequestUtil(object):
                 response = requests.get(url, headers=headers)
                 print('抓取成功', url, response.status_code)
                 if response.status_code == 200:
-                    return response.text
+                    # 使用apparent_encoding解决乱码问题
+                    text = response.text.encode(response.encoding).decode(response.apparent_encoding)
+                    # print(text)
+                    return text
             except ConnectionError:
                 print('抓取失败', url)
                 return None

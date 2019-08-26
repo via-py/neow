@@ -10,9 +10,11 @@
     :date created: 2019/8/21, 19:42:00
     :python version: 3.6
 """
+import time
+
 from conf.ConfigGetter import config
 from db import DataStore
-from manager import Proxy
+from manager import Proxy, ProxyManager
 from schedule.put_proxys import Getter
 from validator.Validator import Validator
 from validator.CheckProxy import CheckProxy
@@ -78,16 +80,26 @@ def common_verify_proxy(proxy_obj):
     :return:
     """
     db = DataStore()
+    db.changeTable('useful_proxy')
     if proxy_obj.fail_count > config.fail_threshold:
         db.delete(proxy_obj.proxy)
         return False
     else:
         vp = Validator()
-        # 线程单次校验次数，后期加入配置中
-        threshold = 3
-        for i in range(threshold):
-            if vp.verify(proxy_obj):
-                    return True
+        # 线程单次校验次数
+        for i in range(config.check_count):
+            result = vp.verify(proxy_obj)
+            proxy_obj.check_count += 1
+            if result:
+                proxy_obj.last_status = 1
+                proxy_obj.last_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
+                db.update(proxy_obj)
+                return True
+            else:
+                proxy_obj.fail_count += 1
+                proxy_obj.last_status = 0
+                proxy_obj.last_time = time.strftime('%Y%m%d%H%M%S', time.localtime())
+                db.update(proxy_obj)
 
 
 @periodic_inst.task(name='crawl_proxy')
@@ -99,5 +111,7 @@ def crawl_proxy():
     # CheckProxy.checkGetProxyFunc(GetProxy.freeProxy01)
     # getter = Getter()
     # getter.get_ips()
-    print('get proxy')
+    # print('get proxy')
+    pm = ProxyManager()
+    pm.fetch()
 

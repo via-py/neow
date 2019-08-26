@@ -64,6 +64,10 @@ class ConfigGetter(object):
         return TEST_URL
 
     @LazyProperty
+    def check_count(self):
+        return CHECK_COUNT
+
+    @LazyProperty
     def fail_threshold(self):
         return FAIL_THRESHOLD
 

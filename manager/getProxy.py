@@ -14,6 +14,8 @@
 import sys
 from pyquery import PyQuery as pq
 from lxml import etree
+
+from manager import Proxy
 from utils import RequestUtil
 
 

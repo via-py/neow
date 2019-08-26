@@ -79,9 +79,9 @@ class DataStore(object):
         """ 存入一个proxy信息 """
         return self.client.put(key, **kwargs)
 
-    def update(self, key, value, **kwargs):
+    def update(self, key, **kwargs):
         """ 更新指定proxy信息 """
-        return self.client.update(key, value, **kwargs)
+        return self.client.update(key, **kwargs)
 
     def delete(self, key, **kwargs):
         """ 删除指定proxy """

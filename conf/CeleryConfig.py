@@ -33,53 +33,6 @@ class BaseCeleryConfig(object):
     CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/2"
 
 
-class ScheduleCeleryConfig(BaseCeleryConfig):
-    CELERY_IMPORTS = (
-        'test.test_celery'
-    )
-
-    CELERY_ROUTES = {
-        'default': {
-            'queue': 'default',
-            'routing_key': 'default'
-        },
-        'validator': {
-            'queue': 'validator.queue',
-            'routing_key': 'validator.queue',
-        },
-        'crawler': {
-            'queue': 'crawler.queue',
-            'routing_key': 'crawler.queue',
-        },
-        'test': {
-            'queue': 'test.queue',
-            'routing_key': 'test.queue',
-        },
-    }
-    CELERY_QUEUES = {
-        'default': {
-            'exchange': 'default',
-            'exchange_type': 'direct',
-            'routing_key': 'default',
-        },
-        'validator.queue': {
-            'exchange': 'validator.queue',
-            'exchange_type': 'direct',
-            'routing_key': 'validator.queue',
-        },
-        'crawler.queue': {
-            'exchange': 'crawler.queue',
-            'exchange_type': 'direct',
-            'routing_key': 'crawler.queue',
-        },
-        'test.queue': {
-            'exchange': 'test.queue',
-            'exchange_type': 'direct',
-            'routing_key': 'test.queue'
-        }
-    }
-
-
 class PeriodicCeleryConfig(BaseCeleryConfig):
     CELERY_ENABLE_UTC = False
     CELERY_TIMEZONE = 'Asia/Shanghai'
@@ -181,7 +134,6 @@ class PeriodicCeleryConfig(BaseCeleryConfig):
                 'exchange': 'common_verify_all.queue',
                 'exchange_type': 'direct'
             },
-            # 'args': (time.strftime('%Y%m%d%H%M%S', time.localtime()))
         },
         'crawl_proxy': {
             # 对应task注册时给的name

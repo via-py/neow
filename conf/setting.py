@@ -54,7 +54,7 @@ DATABASE = {
 }
 
 # 验证次数
-
+CHECK_COUNT = 3
 FAIL_THRESHOLD = 10
 TEST_URL = "https://www.baidu.com"
 
