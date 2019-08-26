@@ -104,12 +104,12 @@ class RedisHelper(object):
             return value.decode('utf-8') if PY3 and value else value
         return None
 
-    def getAll(self, name):
+    def getAll(self):
         """
         列表形式返回所有代理, 使用changeTable指定hash name
         :return:
         """
-        item_dict = self.__conn.hgetall(name)
+        item_dict = self.__conn.hgetall(self.name)
         if PY3:
             return [value.decode('utf-8') for key, value in item_dict.items()]
         else:

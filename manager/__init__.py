@@ -12,3 +12,4 @@
 @ModifyContent  :
 """
 from manager.Proxy import Proxy
+from manager.ProxyManager import ProxyManager
